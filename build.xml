@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<project name="malone-dbms" basedir="." default="main">
+
+	<property name="src.dir" value="src/main/java"/>
+	<property name="resources.dir" value="resources"/>
+	<property name="build.dir" value="build"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+	<property name="jar.dir"     value="${build.dir}/jar"/>
+
+	<property name="main-class" value="com.malone.dbms.App"/>
+	<property name="main-swing-class" value="com.malone.dbms.desktopSwing.App"/>
+	<property name="main-javafx-class" value="com.malone.dbms.desktopJavaFX.Main"/>
+
+	<property name="name" value="malone-dbms"/>
+
+	<path id="mysql.connector">
+		<!--fileset dir="${resources.dir}/mysql-connector-java-5.1.46/"-->
+		<fileset dir="${resources.dir}/mysql-connector-j-8.3.0/">
+			<include name="*.jar"/>
+		</fileset>
+		<pathelement path="${build.dir}"/>
+	</path>
+
+	<path id="javafx.sdk">
+		<fileset dir="${resources.dir}/javafx-sdk-21.0.2/lib">
+			<include name="*.jar"/>
+		</fileset>
+		<pathelement path="${build.dir}"/>
+	</path>
+
+	<!-- =================================
+          java swing targets
+         ================================= -->
+
+	<target name="clean" description="Clean output directories">
+		<delete dir="${build.dir}"/>
+	</target>
+
+	<target name="compile" description="Compile source tree java files">
+		<mkdir dir="${classes.dir}"/>
+		<mkdir dir="${classes.dir}/resources"/>
+
+		<javac destdir="${classes.dir}" source="1.8" target="1.8">
+			<src path="${src.dir}"/>
+			<classpath refid="mysql.connector" />
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile">
+		<mkdir dir="${jar.dir}"/>
+		<jar destfile="${jar.dir}/${ant.project.name}.jar"
+			basedir="${classes.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="${main-class}"/>
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="run" depends="jar">
+        <!--java jar="${jar.dir}/${ant.project.name}.jar" fork="true"/-->
+        <java fork="true" classname="${main-swing-class}"><!-- ${main-swing-class} / ${main-class} -->
+            <classpath>
+                <path location="${jar.dir}/${ant.project.name}.jar"/>
+            </classpath>
+            <classpath refid="mysql.connector" />
+        </java>
+    </target>
+
+    <target name="clean-build" depends="clean,jar"/>
+
+    <target name="main" depends="clean,run"/>
+
+    <!-- =================================
+          java-fx targets
+         ================================= -->
+
+	<target name="compile-javafx" description="Compile source tree java files">
+		<mkdir dir="${classes.dir}"/>
+		<mkdir dir="${classes.dir}/resources"/>
+
+		<javac destdir="${classes.dir}" source="1.9" target="1.9">
+			<src path="${src.dir}"/>
+			<classpath refid="mysql.connector"/>
+            <modulepath refid="javafx.sdk"/>
+            <compilerarg line="--add-modules javafx.controls"/>
+		</javac>
+	</target>
+
+	<target name="jar-javafx" depends="compile-javafx">
+		<mkdir dir="${jar.dir}"/>
+		<jar destfile="${jar.dir}/${ant.project.name}.jar"
+			basedir="${classes.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="${main-class}"/>
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="run-javafx" depends="jar-javafx">
+        <java fork="true" classname="${main-javafx-class}">
+        	<!-- ${main-swing-class} / ${main-class} / ${main-javafx-class} -->
+            <classpath>
+                <path location="${jar.dir}/${ant.project.name}.jar"/>
+            </classpath>
+            <classpath refid="mysql.connector"/>
+            <modulepath refid="javafx.sdk"/>
+            <jvmarg line="--add-modules javafx.controls"/>
+        </java>
+    </target>
+
+    <target name="clean-build-javafx" depends="clean,jar-javafx"/>
+
+    <target name="main-javafx" depends="clean,run-javafx"/>
+
+</project>

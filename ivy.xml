@@ -1,0 +1,7 @@
+<ivy-module version="2.0">
+    <info organisation="org.apache" module="Count"/>
+    <dependencies>
+        <dependency org="org.openjfx" name="javafx-controls" rev="21.0.2"/>
+        <!--dependency org="org.openjfx" name="javafx-fxml" rev="21.0.2"/-->
+    </dependencies>
+</ivy-module>
