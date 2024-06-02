@@ -89,6 +89,7 @@ public class TableDetailView {
         for (Tab tab : tabPane.getTabs()) {
             if (tab.getText() == tabTitle) {
                 tabPane.getTabs().removeAll(tab);
+                break;
             }
         }
 
@@ -102,8 +103,8 @@ public class TableDetailView {
         Tab tab = new Tab();
         tab.setText(tabTitle);
         tab.setContent(scrollPane);
-
         tabPane.getTabs().add(tab);
+        tabPane.getSelectionModel().select(tab);
     }
 
     public String getSQLQuery() {

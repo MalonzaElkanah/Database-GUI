@@ -34,22 +34,22 @@ public class AppView {
 
     private ToolBar toolBar = new ToolBar();
     protected ComboBox<String> databaseComboBox = new ComboBox();
-    private Button refreshButton = new Button("Refresh Database");
-    public Button executeQueryButton = new Button("Execute Query");
-    protected TreeView databaseTree = new TreeView();
+    protected Button refreshButton = new Button("Refresh Database");
+    protected Button executeQueryButton = new Button("Execute Query");
+    private TreeView databaseTree = new TreeView();
     protected TreeItem databaseRootNode = new TreeItem("Databases");
-    protected SelectionModel selectionModel;
+    protected SelectionModel<TreeItem> selectionModel;
 
-    public MenuItem newDbMenuItem = new MenuItem("New DataBase");
-    public MenuItem selectDbMenuItem = new MenuItem("Select DataBase");
-    public MenuItem dropDbMenuItem = new MenuItem("Drop DataBase");
+    protected MenuItem newDbMenuItem = new MenuItem("New DataBase");
+    protected MenuItem selectDbMenuItem = new MenuItem("Select DataBase");
+    protected MenuItem dropDbMenuItem = new MenuItem("Drop DataBase");
 
-    public MenuItem selectTableMenuItem = new MenuItem("Select Table");
-    public MenuItem insertTableMenuItem = new MenuItem("Insert Into Table");
-    public MenuItem updateTableMenuItem = new MenuItem("Update VALUES");
-    public MenuItem deleteRowMenuItem = new MenuItem("Delete Row");
-    public MenuItem newTableMenuItem = new MenuItem("New Table");
-    public MenuItem dropTableMenuItem = new MenuItem("Drop Table");
+    protected MenuItem selectTableMenuItem = new MenuItem("Select Table");
+    protected MenuItem insertTableMenuItem = new MenuItem("Insert Into Table");
+    protected MenuItem updateTableMenuItem = new MenuItem("Update VALUES");
+    protected MenuItem deleteRowMenuItem = new MenuItem("Delete Row");
+    protected MenuItem newTableMenuItem = new MenuItem("New Table");
+    protected MenuItem dropTableMenuItem = new MenuItem("Drop Table");
 
     public AppView() {
         root.setPrefSize(1450, 730);
@@ -123,12 +123,12 @@ public class AppView {
         return headerPane;
     }
 
-    public void setMainContentPanel(Pane pane) {
+    public void setMainContentPanel(TitledPane pane) {
         TitledPane titledPane = new TitledPane("QUERY DATABASE", pane);
         titledPane.setCollapsible(false);
         titledPane.setPrefSize(1100, 700);
         titledPane.setPadding(new Insets(0, 0, 10, 0));
-        root.setCenter(titledPane);
+        root.setCenter(pane);
     }
 
     public void setDatabaseTree(Hashtable<String, Vector> dataMap) {
@@ -170,7 +170,7 @@ public class AppView {
     }
 
     public void setDatabaseComboBox(Vector<String> items) {
-        this.databaseComboBox.getItems().setAll(items);
+        databaseComboBox.getItems().setAll(items);
     }
 
 }
