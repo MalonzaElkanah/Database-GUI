@@ -21,7 +21,7 @@ public class TableDetailView {
     private BorderPane root = new BorderPane();
     public TabPane tabPane = new TabPane();
     private TextArea SQLPane = new TextArea();
-    public Button executeQueryButton = new Button("Execute Query");
+    // public Button executeQueryButton = new Button("Execute Query");
 
     public TableDetailView() {
         root.setPrefSize(600, 400);
@@ -36,7 +36,7 @@ public class TableDetailView {
 
         SplitPane splitter = new SplitPane(scrollPane, tabPane);
         splitter.setOrientation(Orientation.VERTICAL);
-        // splitter.setDividerLocation(100);
+        splitter.setDividerPositions(0.3);
 
         root.setCenter(splitter);
         // root.setBottom(executeQueryButton);
@@ -47,7 +47,7 @@ public class TableDetailView {
     }
 
     public void setDescriptionTab(Vector colNames, Vector dataSet) {
-        TableView tableView = ViewUtils.createTable(colNames, dataSet); 
+        TableView tableView = ViewUtils.createTable(colNames, dataSet, false); 
 
         ScrollPane scrollPane = new ScrollPane(tableView);
         scrollPane.setPrefSize(400, 400);
@@ -65,7 +65,7 @@ public class TableDetailView {
     }
 
     public void setDataTab(Vector colNames, Vector rowData) {
-        TableView table = ViewUtils.createTable(colNames, rowData);
+        TableView table = ViewUtils.createTable(colNames, rowData, false);
 
         ScrollPane scrollPane = new ScrollPane(table);
         scrollPane.setPrefSize(400, 400);
@@ -83,7 +83,7 @@ public class TableDetailView {
     }
 
     public void setQueryTab(Vector colNames, Vector rowData) {
-        TableView queryTable = ViewUtils.createTable(colNames, rowData);
+        TableView queryTable = ViewUtils.createTable(colNames, rowData, false);
         String tabTitle = "QUERY DATA";
 
         for (Tab tab : tabPane.getTabs()) {

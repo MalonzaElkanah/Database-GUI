@@ -24,12 +24,13 @@ hs_err_pid*
 
 
 # build folder
+target
 build
 out
 
 # Library and Dependencies folder
 lib/
-resources/
+# resources/
 
 # Others
 .git

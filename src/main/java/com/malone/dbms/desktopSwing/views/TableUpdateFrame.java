@@ -27,7 +27,7 @@ public class TableUpdateFrame extends JInternalFrame {
         this.setResizable(true);
 
         this.getContentPane().setLayout(new BorderLayout());
-        this.getContentPane().add(updateButton,BorderLayout.SOUTH);
+        this.getContentPane().add(updateButton, BorderLayout.SOUTH);
 
         this.setVisible(true);
     }

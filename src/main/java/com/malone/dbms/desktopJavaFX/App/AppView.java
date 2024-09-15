@@ -77,7 +77,8 @@ public class AppView {
         pane.setAlignment(Pos.CENTER);
         pane.getChildren().addAll(comboLabel, databaseComboBox);
 
-        toolBar.getItems().addAll(new Separator(), pane, new Separator(), refreshButton, executeQueryButton);
+        toolBar.getItems().addAll(/*new Separator(),*/ pane, /*new Separator(),*/ 
+            refreshButton, executeQueryButton);
         toolBar.setPadding(new Insets(10, 10, 10, 10));
     }
 

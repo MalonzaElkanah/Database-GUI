@@ -3,6 +3,9 @@ package com.malone.dbms.desktopJavaFX.App;
 import com.malone.dbms.utils.DatabaseUtilities;
 import com.malone.dbms.desktopJavaFX.TableDetail.TableDetailView;
 import com.malone.dbms.desktopJavaFX.TableDetail.TableDetailController;
+import com.malone.dbms.desktopJavaFX.TableInsert.TableInsertController;
+import com.malone.dbms.desktopJavaFX.TableUpdate.TableUpdateController;
+import com.malone.dbms.desktopJavaFX.TableBuilder.TableBuilderController;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ChoiceDialog;
@@ -15,14 +18,15 @@ import javafx.scene.control.ButtonType;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 
-
-
 import java.util.Vector;
 import java.util.Optional;
 
 public class AppController {
     private AppView view;
 	private TableDetailController tableDetail = new TableDetailController();
+    private TableInsertController tableInsert = new TableInsertController();
+    private TableUpdateController tableUpdate = new TableUpdateController();
+    private TableBuilderController tableBuilder = new TableBuilderController();
     private DatabaseUtilities dbUtils = new DatabaseUtilities();
     private String selectedDatabase = null;
 
@@ -88,14 +92,14 @@ public class AppController {
         view.dropDbMenuItem.setOnAction(a -> dropDatabase());
 
         // Table MenuItems Listeners
-        view.selectTableMenuItem.setOnAction(a -> displayTableDetailFrame());
+        view.selectTableMenuItem.setOnAction(a -> displayTableDetailView());
         
-        view.insertTableMenuItem.setOnAction(a -> {});
-        view.updateTableMenuItem.setOnAction(a -> {});
+        view.insertTableMenuItem.setOnAction(a -> displayTableInsertView());
+        view.updateTableMenuItem.setOnAction(a -> displayTableUpdateView());
         view.deleteRowMenuItem.setOnAction(a -> {});
         
-        view.newTableMenuItem.setOnAction(a -> {});
-        view.dropTableMenuItem.setOnAction(a -> {});
+        view.newTableMenuItem.setOnAction(a -> displayBuilderView());
+        view.dropTableMenuItem.setOnAction(a -> dropTable());
     }
 
     private void refreshDatabase() {
@@ -207,7 +211,7 @@ public class AppController {
         return this.tableDetail.getTableDetailPane(tableName);
     }
 
-    public void displayTableDetailFrame() {
+    public void displayTableDetailView() {
         if (selectedDatabase == null) {
             selectDatabase();
         } 
@@ -237,6 +241,242 @@ public class AppController {
                         view.executeQueryButton.setOnAction(a -> {
                             tableDetail.executeQuery();
                         });
+                    }
+                });
+            }
+        }
+    }
+
+    public void displayTableInsertView() {
+        if (selectedDatabase == null) {
+            selectDatabase();
+        } 
+        String databaseName = selectedDatabase;
+        
+        if (databaseName != null ) {
+            Vector tables = dbUtils.getTables(databaseName);
+
+            if (tables.isEmpty()) {
+                new Alert(
+                    Alert.AlertType.INFORMATION,
+                    "The " + databaseName + " database has no tables").show();
+            } else {
+                ChoiceDialog<String> dialog = new ChoiceDialog(
+                    tables.get(0),
+                    tables.toArray());
+                dialog.setHeaderText("SELECT TABLE from '" + databaseName + "' Database.");
+                dialog.setTitle("Choose table");
+                dialog.setContentText("'" + databaseName + "' Tables: ");
+
+                Optional<String> result = dialog.showAndWait();
+
+                result.ifPresent(tableName -> {
+                    if (tableName != "") {
+                        view.setMainContentPanel(
+                            tableInsert.getTableInsertPane(
+                            databaseName + "." + tableName));
+
+                        view.executeQueryButton.setOnAction(a -> {
+                            // tableInsert.executeQuery();
+                            String[] SQLQueries = tableInsert.getSQLCommands();
+
+                            if (SQLQueries.length > 0) {
+                                boolean isInserted = this.dbUtils.execute(SQLQueries);
+                                if (isInserted) {
+                                    new Alert(
+                                        Alert.AlertType.INFORMATION,
+                                        "Data Inserted to " + tableName).show();
+
+                                    view.setMainContentPanel(tableDetail.getTableDetailPane(
+                                        databaseName + "." + tableName));
+
+                                    tableDetail.setSelectedTab(1);
+
+                                    initActionListeners();
+                                } else {
+                                    new Alert(
+                                        Alert.AlertType.ERROR,
+                                        "Error: Data not inserted to " + tableName).show();
+                                }
+
+                            } else {
+                                new Alert(
+                                    Alert.AlertType.ERROR,
+                                    "Error: Can not issue empty query!").show();
+                            }
+                        });
+                    }
+                });
+            }
+        }
+    }
+
+    public void displayTableUpdateView() {
+        if (selectedDatabase == null) {
+            selectDatabase();
+        } 
+        String databaseName = selectedDatabase;
+        
+        if (databaseName != null ) {
+            Vector tables = dbUtils.getTables(databaseName);
+
+            if (tables.isEmpty()) {
+                new Alert(
+                    Alert.AlertType.INFORMATION,
+                    "The " + databaseName + " database has no tables").show();
+            } else {
+                ChoiceDialog<String> dialog = new ChoiceDialog(
+                    tables.get(0),
+                    tables.toArray());
+                dialog.setHeaderText("SELECT TABLE from '" + databaseName + "' Database.");
+                dialog.setTitle("Choose table");
+                dialog.setContentText("'" + databaseName + "' Tables: ");
+
+                Optional<String> result = dialog.showAndWait();
+
+                result.ifPresent(tableName -> {
+                    if (tableName != "") {
+                        view.setMainContentPanel(
+                            tableUpdate.getTableUpdatePane(
+                            databaseName + "." + tableName));
+                        view.executeQueryButton.setOnAction(a -> {
+                            // tableUpdate.executeQuery();
+                            String[] SQLQueries = tableUpdate.getSQLCommands();
+
+                            if (SQLQueries.length > 0) {
+                                boolean isUpdated = this.dbUtils.execute(SQLQueries);
+                                if (isUpdated) {
+                                    new Alert(
+                                        Alert.AlertType.INFORMATION,
+                                        "Data in Table " + tableName + " Updated.").show();
+                                    view.setMainContentPanel(tableDetail.getTableDetailPane(
+                                        databaseName + "." + tableName));
+
+                                    tableDetail.setSelectedTab(1);
+
+                                    initActionListeners();
+                                } else {
+                                    new Alert(
+                                        Alert.AlertType.ERROR,
+                                        "Error: Data not updated.").show();
+                                }
+
+                            } else {
+                                new Alert(
+                                    Alert.AlertType.ERROR,
+                                    "Error: Can not issue empty query!").show();
+                            }
+                        });
+                    }
+                });
+            }
+        }
+    }
+
+    public void displayBuilderView() {
+        if (selectedDatabase == null) {
+            selectDatabase();
+        } 
+        String databaseName = selectedDatabase;
+        
+        if (databaseName != null ) {
+            TextInputDialog dialog = new TextInputDialog();
+            // dialog.setHeaderText("SELECT TABLE from '" + databaseName + "' Database.");
+            dialog.setTitle("New " + databaseName + " Table.");
+            dialog.setContentText("New Table:");
+
+            Optional<String> result = dialog.showAndWait();
+
+            result.ifPresent(tableName -> {
+                if (tableName != "") {
+                    Vector tables = dbUtils.getTables(databaseName);
+
+                    if (tables.contains(tableName)) {
+                        new Alert(
+                            Alert.AlertType.INFORMATION,
+                            "The '" + tableName + "' table already exists in " + databaseName).show();
+                    } else {
+                        view.setMainContentPanel(
+                            tableBuilder.getTableBuilderPane(
+                                databaseName + "." + tableName));
+                        view.executeQueryButton.setOnAction(a -> {
+                            // tableBuilder.executeQuery();
+
+                            String SQLQuery = tableBuilder.getSQLQuery();
+
+                            if (SQLQuery != "") {
+                                boolean isInserted = this.dbUtils.execute(SQLQuery);
+                                if (isInserted) {
+                                    new Alert(
+                                        Alert.AlertType.INFORMATION,
+                                        "Table " + tableName + " created.").show();
+                                    refreshDatabase();
+
+                                    view.setMainContentPanel(tableDetail.getTableDetailPane(
+                                        databaseName + "." + tableName));
+                                    initActionListeners();
+                                } else {
+                                    new Alert(
+                                        Alert.AlertType.ERROR,
+                                        "Error: " + tableName + " not created.").show();
+                                }
+
+                            } else {
+                                new Alert(
+                                    Alert.AlertType.ERROR,
+                                    "Error: Can not issue empty query!").show();
+                            }
+
+                        });
+                    }
+                }
+            });
+        }
+    }
+
+    public void dropTable() {
+        if (selectedDatabase == null) {
+            selectDatabase();
+        } 
+        String databaseName = selectedDatabase;
+        
+        if (databaseName != null ) {
+            Vector tables = dbUtils.getTables(databaseName);
+
+            if (tables.isEmpty()) {
+                new Alert(
+                    Alert.AlertType.INFORMATION,
+                    "The " + databaseName + " database has no tables").show();
+            } else {
+                ChoiceDialog<String> dialog = new ChoiceDialog(
+                    tables.get(0),
+                    tables.toArray());
+                dialog.setHeaderText("DROP TABLE from '" + databaseName + "' Database.");
+                dialog.setTitle("Drop table");
+                dialog.setContentText("'" + databaseName + "' Tables: ");
+
+                Optional<String> result = dialog.showAndWait();
+
+                result.ifPresent(tableName -> {
+                    if (tableName != "") {
+                        Alert alert = new Alert(
+                            Alert.AlertType.CONFIRMATION,
+                            "Are you sure you want to DROP " + tableName + " table?");
+                        alert.showAndWait()
+                            .filter(response -> response == ButtonType.OK)
+                            .ifPresent(response -> {
+                                Vector res = this.dbUtils.dropTable(tableName);
+
+                                if (Boolean.parseBoolean(res.firstElement().toString())) {
+                                    new Alert(
+                                        Alert.AlertType.INFORMATION,
+                                        "TABLE " + tableName + " DROPPED!").show();
+
+                                    refreshDatabase();
+                                } else {
+                                    this.reportException(res.lastElement().toString());
+                                }
+                            });
                     }
                 });
             }

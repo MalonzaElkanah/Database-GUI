@@ -38,6 +38,10 @@ public class TableDetailController {
         return titledPane;
     }
 
+    public void setSelectedTab(int index) {
+        view.tabPane.getSelectionModel().select(index);
+    }
+
 	public void executeQuery() {
         String SQLQuery = view.getSQLQuery();
         System.out.println(SQLQuery);

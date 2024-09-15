@@ -1,12 +1,15 @@
 package com.malone.dbms.utils;
 
+import java.io.IOException;
 import java.sql.*;
 import java.util.Vector;
 import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.Properties;
 
 public class DatabaseUtilities {
     private static Connection con = null;
+    private static Properties config;
 
     public DatabaseUtilities() {
         setConnection();
@@ -15,15 +18,16 @@ public class DatabaseUtilities {
     private void setConnection() {
         if (DatabaseUtilities.con == null) {
             try {
+                config = PropertiesLoader.loadProperties("application.properties");
                 // Class.forName("com.mysql.jdbc.Driver");
                 Class.forName("com.mysql.cj.jdbc.Driver");
 
                 System.out.println("creating connection...");
-                // testHMS
+                
                 DatabaseUtilities.con = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306",
-                    "malonza",
-                    "Pass1234");
+                    config.getProperty("connection.url"), // "jdbc:mysql://localhost:3306",
+                    config.getProperty("connection.username"),
+                    config.getProperty("connection.password"));
 
                 System.out.println("SERVER STATUS: ONLINE");
 
@@ -37,6 +41,8 @@ public class DatabaseUtilities {
                     System.out.println("ERROR "+ex.getErrorCode()+": "+ex.getMessage());
                     ex.printStackTrace();
                 }
+            } catch(IOException io) {
+                System.out.println(io.getMessage());
             }
         }
     }
